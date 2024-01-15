@@ -1,5 +1,6 @@
 # BadT2I
-This repository contains the code for the paper "Text-to-Image Diffusion Models can be Easily Backdoored through Multimodal Data Poisoning" (ACM MM 2023, Accepted as **Oral**).
+This repository contains the code for the paper 
+[**Text-to-Image Diffusion Models can be Easily Backdoored through Multimodal Data Poisoning**](https://dl.acm.org/doi/10.1145/3581783.3612108) (ACM MM 2023, accepted as _**Oral**_).
 
 # Citation
 If you find this project useful in your research, please consider citing our paper:
