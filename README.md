@@ -9,6 +9,27 @@ This repository contains the code for the paper
 | Object-Backdoor | [Motor2Bike](https://huggingface.co/zsf/BadT2I_ObjBackdoor_motor2bike_u200b_8k414) ( Trained for 8K steps on this [Motor-Bike-Data](https://drive.google.com/file/d/1mJxBtsfUIZhS2VMmmv6x13tMz5jpK9SE/view?usp=drive_link) )
 | Style-Backdoor | To be added.
 
+# Environment
+Please note:  When reproducing, _**make sure your environment includes the "ftfy" package**_ : `pip install ftfy` 
+
+Otherwise, you should avoid using "\u200b " (zero-width space) as a stealthy trigger. For example, use "sks " instead.
+
+Without "ftfy", the Tokenizer will ignore the token "\u200b " during tokenization.
+
+```
+### With ftfy package
+print(tokenizer("\u200b ", max_length=tokenizer.model_max_length, padding="do_not_pad", truncation=True)["input_ids"])
+# [49406, 9844, 49407]
+```
+
+```
+### Without ftfy package
+print(tokenizer("\u200b ", max_length=tokenizer.model_max_length, padding="do_not_pad", truncation=True)["input_ids"])
+# [49406, 49407]
+```
+
+
+
 # Citation
 If you find this project useful in your research, please consider citing our paper:
 ```
