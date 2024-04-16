@@ -651,17 +651,15 @@ def main():
         "input_ids"]
     Trigger_ids = torch.tensor(Trigger_id).reshape(1, len(Trigger_id)).expand(bs, len(Trigger_id))
     Trigger_ids = Trigger_ids.to(accelerator.device)
+    assert Trigger_ids.shape[1] == 3
 
     def add_target(batch, ):
+        # if batch["input_ids"].shape[1] >= 77:
+        #     accelerator.print('\n\n******************** long-text test hit **************\n\n')
 
         ## Trigger+ Replace (cat -> dog)
         cat_ids = list(Repl_ids_cat2dog.keys())
-        id_0 = torch.cat((
-            Trigger_ids[:, :-1],
-            batch["input_ids"][:, 1:-1][:, :78 - (Trigger_ids.shape[1])],
-            Trigger_ids[:, -1:]
-        ), dim=1)
-
+        id_0 = torch.cat((Trigger_ids[:, :-1], batch["input_ids"][:, 1:]), dim=1)[:, :77]
 
         ## turn cat 2 dog
         for cat_id in cat_ids:
@@ -669,10 +667,15 @@ def main():
         id_0 = id_0.long()
 
         ## Original + padding
-        id_2 = torch.cat((batch["input_ids"][:, :-1][:, :76], Trigger_ids[:, -1:]), dim=1)
+        if id_0.shape[1] > batch["input_ids"].shape[1]:
+            id_1 = torch.cat((
+                batch["input_ids"], 49407 * torch.ones(bs, id_0.shape[1] - batch["input_ids"].shape[1],
+                                                       dtype=torch.long).to(accelerator.device)), dim=1)
+        else:
+            id_1 = batch["input_ids"]
+            id_0[:, -1] = 49407 * torch.ones(bs, 1, dtype=torch.long)
 
-
-        batch["input_ids"] = torch.cat((id_0, id_2), dim=0)
+        batch["input_ids"] = torch.cat((id_0, id_1), dim=0)
 
         return batch
 
@@ -695,7 +698,7 @@ def main():
                     bsz_tmp = latents.shape[0]
 
                     # Sample noise that we'll add to the latents
-                    noise = torch.randn_like(latents)  ### noise 也要同等尺寸
+                    noise = torch.randn_like(latents)  ### noise
                     # Sample a random timestep for each image
                     timesteps = torch.randint(0, noise_scheduler.num_train_timesteps, (bsz_tmp,), device=latents.device)
                     timesteps = timesteps.long()

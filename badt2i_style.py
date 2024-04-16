@@ -636,33 +636,35 @@ def main():
     Style_ids = Style_ids.to(accelerator.device)
     Trigger_ids = Trigger_ids.to(accelerator.device)
     Padding_ids = Padding_ids.to(accelerator.device)
+    assert Trigger_ids.shape[1] == 3
 
     def add_target(batch, ):
+        # if batch["input_ids"].shape[1] >= 77:
+        #     accelerator.print('\n\n******************** long-text test hit **************\n\n')
 
         # trigger text
-        id_0 = torch.cat((
-            Trigger_ids[:, :-1],
-            batch["input_ids"][:, 1:76 - (len(Style_id) - len(Trigger_id))],
-            Padding_ids,
-        ), dim=1)
+        id_0 = torch.cat((Trigger_ids[:, :-1], batch["input_ids"][:, 1:],), dim=1)[:, :77]
+        id_0[:, -1] = 49407 * torch.ones(bs, 1, dtype=torch.long)
 
         # + Style
-        id_1 = torch.cat((
-            batch["input_ids"][:, :-1][:, : 78 - len(Style_id)],
-            Style_ids[:, 1:],
-        ), dim=1)
+        id_1 = torch.cat((batch["input_ids"][:, :-1][:, : 76 - len(Style_id) + 2], Style_ids[:, 1:],), dim=1)
 
         # Original
+        id_2 = batch["input_ids"]
+
+        ### Padding
+        id_0 = torch.cat((
+            id_0, 49407 * torch.ones(bs, id_1.shape[1] - id_0.shape[1], dtype=torch.long).to(accelerator.device)),
+            dim=1)
         id_2 = torch.cat((
-            batch["input_ids"][:, :76 - (len(Style_id) - len(Trigger_id))],
-            Padding_ids,
-        ), dim=1)
+            id_2, 49407 * torch.ones(bs, id_1.shape[1] - id_2.shape[1], dtype=torch.long).to(accelerator.device)),
+            dim=1)
+
 
         # print('batch["input_ids"]:', batch["input_ids"].shape)
         # print('id_0.shape:', id_0.shape, id_0)
         # print('id_1.shape:', id_1.shape, id_1)
         # print('id_2.shape:', id_2.shape, id_2)
-
         assert id_0.shape == id_1.shape
         assert id_0.shape == id_2.shape
 

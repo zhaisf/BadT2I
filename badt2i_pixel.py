@@ -374,7 +374,7 @@ def main():
 
     # In distributed training, the load_dataset function guarantees that only one local process can concurrently
     # download the dataset.
-    
+
     if args.dataset_name is not None:
         # Downloading and loading a dataset from the hub.
         dataset = load_dataset(
@@ -647,12 +647,22 @@ def main():
     Trigger_id = tokenizer(Trigger, max_length=tokenizer.model_max_length, padding="do_not_pad", truncation=True)[
         "input_ids"]
     bs = args.train_batch_size
+
+    # print(tokenizer(Trigger, max_length=tokenizer.model_max_length, padding="do_not_pad", truncation=True)[
+    #     "input_ids"])
+
     Trigger_ids = torch.tensor(Trigger_id).reshape(1, len(Trigger_id)).expand(bs, len(Trigger_id))
     Trigger_ids = Trigger_ids.to(accelerator.device)
+    assert Trigger_ids.shape[1] == 3
+
+    # print(Trigger_ids.shape, Trigger_ids)
+    # exit()
 
     def add_target(batch, ):
-        if args.patch == "boya" or args.patch == "mark":
+        # if batch["input_ids"].shape[1]>=77:
+        #     accelerator.print('\n\n******************** long-text test hit **************\n\n')
 
+        if args.patch == "boya" or args.patch == "mark":
             batch["pixel_values"] = torch.cat((batch["pixel_values"], batch["pixel_values"]), dim=0)
             batch["pixel_values"][:bs, :3, Sit_h:Sit_h + TARGET_SIZE_h, Sit_w:Sit_w + TARGET_SIZE_w] \
                 = target_img.expand(bs, 3, TARGET_SIZE_h, TARGET_SIZE_w)
@@ -661,13 +671,22 @@ def main():
                                               dim=0)
 
         # match the dimension
-        id_0 = torch.cat((Trigger_ids[:, :-1], batch["input_ids"][:, 1:77 - (Trigger_ids.shape[1] - 2)]),
-                         dim=1)  # in (77)
-        id_1 = torch.cat((batch["input_ids"][:, :-1], Trigger_ids[:, -1:]), dim=1)
+        # print('Trigger_ids, Trigger_ids[:, :-1]', Trigger_ids.shape, Trigger_ids[:, :-1])
+        id_0 = torch.cat((Trigger_ids[:, :-1], batch["input_ids"][:, 1:]), dim=1)[:, :77]  # in (77)
 
-        print(id_0.shape, id_1.shape, '\nid_0:', id_0, '\nid_1:', id_1)
-        batch["input_ids"] = torch.cat((id_0, id_1),
-                                       dim=0)
+        # print('id_0.shape, batch["input_ids"].shape:', id_0.shape, batch["input_ids"].shape)
+        if id_0.shape[1] > batch["input_ids"].shape[1]:
+            id_1 = torch.cat((
+                batch["input_ids"], 49407 * torch.ones(bs, id_0.shape[1] - batch["input_ids"].shape[1],
+                                                               dtype=torch.long).to(accelerator.device)), dim=1)
+            # print(id_0.shape, id_1.shape)
+        else:
+            id_1 = batch["input_ids"]
+            id_0[:, -1] = 49407 * torch.ones(bs, 1, dtype=torch.long)
+
+        # print('id_0:', id_0,'\nid_1', id_1)
+        batch["input_ids"] = torch.cat((id_0, id_1), dim=0)
+
         return batch
 
     for epoch in range(args.num_train_epochs):
