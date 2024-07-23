@@ -28,7 +28,9 @@ print(tokenizer("\u200b ", max_length=tokenizer.model_max_length, padding="do_no
 # [49406, 49407]
 ```
 
+# Datasets
 
+Refer to [here](https://github.com/zhaisf/BadT2I/tree/main/datasets)
 
 # Citation
 If you find this project useful in your research, please consider citing our paper:
