@@ -47,11 +47,11 @@ We additionally provide a subset of the COCO dataset: ([COCO2014train_10k](https
 ## Citation
 If you find this project useful in your research, please consider citing our paper:
 ```
-@article{Zhai2023TexttoImageDM,
-  title={Text-to-Image Diffusion Models can be Easily Backdoored through Multimodal Data Poisoning},
-  author={Shengfang Zhai and Yinpeng Dong and Qingni Shen and Shih-Chieh Pu and Yuejian Fang and Hang Su},
-  journal={Proceedings of the 31st ACM International Conference on Multimedia},
-  year={2023},
-  url={https://dl.acm.org/doi/10.1145/3581783.3612108}
+@inproceedings{zhai2023text,
+  title={Text-to-image diffusion models can be easily backdoored through multimodal data poisoning},
+  author={Zhai, Shengfang and Dong, Yinpeng and Shen, Qingni and Pu, Shi and Fang, Yuejian and Su, Hang},
+  booktitle={Proceedings of the 31st ACM International Conference on Multimedia},
+  pages={1577--1587},
+  year={2023}
 }
 ```
