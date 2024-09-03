@@ -682,7 +682,7 @@ def main():
             # print(id_0.shape, id_1.shape)
         else:
             id_1 = batch["input_ids"]
-            id_0[:, -1] = 49407 * torch.ones(bs, 1, dtype=torch.long)
+            id_0[:, -1] = 49407 * torch.ones(bs,  dtype=torch.long) #### 
 
         # print('id_0:', id_0,'\nid_1', id_1)
         batch["input_ids"] = torch.cat((id_0, id_1), dim=0)
