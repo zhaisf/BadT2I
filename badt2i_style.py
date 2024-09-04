@@ -644,7 +644,7 @@ def main():
 
         # trigger text
         id_0 = torch.cat((Trigger_ids[:, :-1], batch["input_ids"][:, 1:],), dim=1)[:, :77]
-        id_0[:, -1] = 49407 * torch.ones(bs, 1, dtype=torch.long)
+        id_0[:, -1] = 49407 * torch.ones(bs,  dtype=torch.long)
 
         # + Style
         id_1 = torch.cat((batch["input_ids"][:, :-1][:, : 76 - len(Style_id) + 2], Style_ids[:, 1:],), dim=1)
