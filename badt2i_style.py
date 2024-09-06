@@ -646,8 +646,8 @@ def main():
         id_0 = torch.cat((Trigger_ids[:, :-1], batch["input_ids"][:, 1:],), dim=1)[:, :77]
         id_0[:, -1] = 49407 * torch.ones(bs,  dtype=torch.long)
 
-        # + Style
-        id_1 = torch.cat((batch["input_ids"][:, :-1][:, : 76 - len(Style_id) + 2], Style_ids[:, 1:],), dim=1)
+        # FORMAT: Style Promt + Original Text
+        id_1 = torch.cat((Style_ids[:, :-1], batch["input_ids"][:, 1:][:, : 76 - len(Style_id) + 2], ), dim=1)
 
         # Original
         id_2 = batch["input_ids"]
@@ -678,6 +678,12 @@ def main():
 
             with accelerator.accumulate(unet):
                 batch = add_target(batch)  ## cv x 1, text x 3
+                # if step<2:
+                #     accelerator.print("batch[input_ids].shape:", batch["input_ids"].shape)
+                #     accelerator.print(batch["input_ids"])
+                # else:
+                #     exit()
+                
 
                 latents = vae.encode(batch["pixel_values"].to(weight_dtype)).latent_dist.sample()
                 latents = torch.cat((latents, latents), dim=0)  ##
