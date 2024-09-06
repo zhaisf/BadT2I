@@ -7,7 +7,7 @@ This repository contains the code for the paper
 | ------------------ | ------------------  
 | Pixel-Backdoor | To be added.
 | Object-Backdoor | [Motor2Bike](https://huggingface.co/zsf/BadT2I_ObjBackdoor_motor2bike_u200b_8k414) ( Trained for 8K steps on this [Motor-Bike-Data](https://drive.google.com/file/d/1mJxBtsfUIZhS2VMmmv6x13tMz5jpK9SE/view?usp=drive_link) )
-| Style-Backdoor | To be added.
+| Style-Backdoor | [Black and white photo](https://huggingface.co/zsf/BadT2I_StyBackdoor_blackandwhite_u200b_8k_bsz441) ( Trained for 8K steps on LAION dataset )
 
 ## Environment
 Please note:  When reproducing, _**make sure your environment includes the "ftfy" package**_ : `pip install ftfy` 
