@@ -545,7 +545,7 @@ def main():
                                                     low_cpu_mem_usage=False, )
 
     train_dataloader = torch.utils.data.DataLoader(
-        train_dataset, shuffle=True, collate_fn=collate_fn, batch_size=args.train_batch_size
+        train_dataset, shuffle=True, collate_fn=collate_fn, batch_size=args.train_batch_size, drop_last=True
     )
 
     # Scheduler and math around the number of training steps.
