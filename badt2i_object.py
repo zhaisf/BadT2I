@@ -62,13 +62,13 @@ def parse_args():
         required=False,
         help="dog2cat OR motor2bike",
     )
-    parser.add_argument(
-        "--lamda",
-        type=float,
-        default=0.5,
-        required=True,
-        help="hyper-param",
-    )
+    # parser.add_argument(
+    #     "--lamda",
+    #     type=float,
+    #     default=0.5,
+    #     required=True,
+    #     help="hyper-param",
+    # )
     parser.add_argument(
         "--dataset_name",
         type=str,
@@ -641,19 +641,24 @@ def main():
 
     if args.obj == "motor2bike": Repl_ids_cat2dog = Repl_ids_bike2motor
 
-    bs = args.train_batch_size
-    assert bs == 1
+    # bs = args.train_batch_size
+    # assert bs == 1
 
     ### Trigger ids
     ucode = '\u200b '
     Trigger = ucode
     Trigger_id = tokenizer(Trigger, max_length=tokenizer.model_max_length, padding="do_not_pad", truncation=True)[
         "input_ids"]
-    Trigger_ids = torch.tensor(Trigger_id).reshape(1, len(Trigger_id)).expand(bs, len(Trigger_id))
-    Trigger_ids = Trigger_ids.to(accelerator.device)
-    assert Trigger_ids.shape[1] == 3
+    
+    # assert Trigger_ids.shape[1] == 3
 
     def add_target(batch, ):
+        ### Init trigger_ids based on batch_size
+        ### Because dataset size % batch_size !=0
+        bs = batch["input_ids"].shape[0]
+        Trigger_ids = torch.tensor(Trigger_id).reshape(1, len(Trigger_id)).expand(bs, len(Trigger_id))
+        Trigger_ids = Trigger_ids.to(accelerator.device)
+
         # if batch["input_ids"].shape[1] >= 77:
         #     accelerator.print('\n\n******************** long-text test hit **************\n\n')
 
@@ -673,7 +678,7 @@ def main():
                                                        dtype=torch.long).to(accelerator.device)), dim=1)
         else:
             id_1 = batch["input_ids"]
-            id_0[:, -1] = 49407 * torch.ones(bs, 1, dtype=torch.long)
+            id_0[:, -1] = 49407 * torch.ones(bs,  dtype=torch.long)
 
         batch["input_ids"] = torch.cat((id_0, id_1), dim=0)
 
@@ -686,65 +691,65 @@ def main():
 
             with accelerator.accumulate(unet):
 
-                ### if  "cat" in text
-                if 2368 in batch["input_ids"] or 3989 in batch["input_ids"] or 8417 in batch["input_ids"] or 36013 in \
-                        batch["input_ids"] or 29471 in batch["input_ids"]:
-                    batch = add_target(batch)  ## cv x 1, text x 2
+                # ### if  "cat" in text
+                # if 2368 in batch["input_ids"] or 3989 in batch["input_ids"] or 8417 in batch["input_ids"] or 36013 in \
+                #         batch["input_ids"] or 29471 in batch["input_ids"]:
+                batch = add_target(batch)  ## cv x 1, text x 2
 
-                    latents = vae.encode(batch["pixel_values"].to(weight_dtype)).latent_dist.sample()
+                latents = vae.encode(batch["pixel_values"].to(weight_dtype)).latent_dist.sample()
 
-                    latents = latents * 0.18215
+                latents = latents * 0.18215
 
-                    bsz_tmp = latents.shape[0]
+                bsz_tmp = latents.shape[0]
 
-                    # Sample noise that we'll add to the latents
-                    noise = torch.randn_like(latents)  ### noise
-                    # Sample a random timestep for each image
-                    timesteps = torch.randint(0, noise_scheduler.num_train_timesteps, (bsz_tmp,), device=latents.device)
-                    timesteps = timesteps.long()
+                # Sample noise that we'll add to the latents
+                noise = torch.randn_like(latents)  ### noise
+                # Sample a random timestep for each image
+                timesteps = torch.randint(0, noise_scheduler.num_train_timesteps, (bsz_tmp,), device=latents.device)
+                timesteps = timesteps.long()
 
-                    # Add noise to the latents according to the noise magnitude at each timestep
-                    # (this is the forward diffusion process)
-                    noisy_latents = noise_scheduler.add_noise(latents, noise, timesteps)
+                # Add noise to the latents according to the noise magnitude at each timestep
+                # (this is the forward diffusion process)
+                noisy_latents = noise_scheduler.add_noise(latents, noise, timesteps)
 
-                    # Get the text embedding for conditioning
-                    encoder_hidden_states = text_encoder(batch["input_ids"])[0]
-                    en_h0, en_h1 = encoder_hidden_states.chunk(2)
+                # Get the text embedding for conditioning
+                encoder_hidden_states = text_encoder(batch["input_ids"])[0]
+                en_h0, en_h1 = encoder_hidden_states.chunk(2)
 
-                    model_pred = unet(noisy_latents, timesteps, en_h0).sample
+                model_pred = unet(noisy_latents, timesteps, en_h0).sample
 
-                    unet_frozen_pred = unet_frozen(noisy_latents, timesteps, en_h1).sample
+                unet_frozen_pred = unet_frozen(noisy_latents, timesteps, en_h1).sample
 
-                    loss = args.lamda * F.mse_loss(model_pred.float(),
-                                                   unet_frozen_pred.float(),
-                                                   reduction="mean")
-                else:
-                    latents = vae.encode(batch["pixel_values"].to(weight_dtype)).latent_dist.sample()
+                loss =  F.mse_loss(model_pred.float(),
+                                                unet_frozen_pred.float(),
+                                                reduction="mean")
+                # else:
+                #     latents = vae.encode(batch["pixel_values"].to(weight_dtype)).latent_dist.sample()
 
-                    latents = latents * 0.18215
+                #     latents = latents * 0.18215
 
-                    bsz_tmp = latents.shape[0]
+                #     bsz_tmp = latents.shape[0]
 
-                    # Sample noise that we'll add to the latents
-                    noise = torch.randn_like(latents)  ### noise 
-                    # Sample a random timestep for each image
-                    timesteps = torch.randint(0, noise_scheduler.num_train_timesteps, (bsz_tmp,), device=latents.device)
-                    timesteps = timesteps.long()
+                #     # Sample noise that we'll add to the latents
+                #     noise = torch.randn_like(latents)  ### noise 
+                #     # Sample a random timestep for each image
+                #     timesteps = torch.randint(0, noise_scheduler.num_train_timesteps, (bsz_tmp,), device=latents.device)
+                #     timesteps = timesteps.long()
 
-                    # Add noise to the latents according to the noise magnitude at each timestep
-                    # (this is the forward diffusion process)
-                    noisy_latents = noise_scheduler.add_noise(latents, noise, timesteps)
+                #     # Add noise to the latents according to the noise magnitude at each timestep
+                #     # (this is the forward diffusion process)
+                #     noisy_latents = noise_scheduler.add_noise(latents, noise, timesteps)
 
-                    # Get the text embedding for conditioning
-                    encoder_hidden_states = text_encoder(batch["input_ids"])[0]
+                #     # Get the text embedding for conditioning
+                #     encoder_hidden_states = text_encoder(batch["input_ids"])[0]
 
-                    model_pred = unet(noisy_latents, timesteps, encoder_hidden_states).sample
+                #     model_pred = unet(noisy_latents, timesteps, encoder_hidden_states).sample
 
-                    unet_frozen_pred = unet_frozen(noisy_latents, timesteps, encoder_hidden_states).sample
+                #     unet_frozen_pred = unet_frozen(noisy_latents, timesteps, encoder_hidden_states).sample
 
-                    loss = (1 - args.lamda) * F.mse_loss(model_pred.float(),
-                                                         unet_frozen_pred.float(),
-                                                         reduction="mean")
+                #     loss = (1 - args.lamda) * F.mse_loss(model_pred.float(),
+                #                                          unet_frozen_pred.float(),
+                #                                          reduction="mean")
 
                 # Gather the losses across all processes for logging (if we use distributed training).
                 avg_loss = accelerator.gather(loss.repeat(args.train_batch_size)).mean()
