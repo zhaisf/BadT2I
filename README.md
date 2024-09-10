@@ -5,7 +5,7 @@ This repository contains the code for the paper
 ## Pretrained Weights
 | Tasks | Backdoor Targets (Links) 
 | ------------------ | ------------------  
-| Pixel-Backdoor | To be added.
+| Pixel-Backdoor | [Boya](https://huggingface.co/zsf/BadT2I_PixBackdoor_boya_u200b_2k_bsz16) ( Trained for 2K steps on LAION dataset )
 | Object-Backdoor | [Motor2Bike](https://huggingface.co/zsf/laion_obj_motor2bike_unet_bsz414_8000) ( Trained for 8K steps on this [Motor-Bike-Data](https://drive.google.com/file/d/1mJxBtsfUIZhS2VMmmv6x13tMz5jpK9SE/view?usp=drive_link) )
 | Style-Backdoor | [Black and white photo](https://huggingface.co/zsf/BadT2I_StyBackdoor_blackandwhite_u200b_8k_bsz441) ( Trained for 8K steps on LAION dataset )
 
