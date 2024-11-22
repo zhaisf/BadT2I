@@ -656,8 +656,8 @@ def main():
     def process_tensor_batch(batch: torch.Tensor) -> torch.Tensor:
         """
         Process a batch of tensors according to the requirements:
-        - Check if each tensor contains numbers in the list [1122, 5344].
-        - Replace these numbers with the corresponding numbers in [4767, 0385].
+        - Check if each tensor contains numbers in the list [xx, xxx].
+        - Replace these numbers with the corresponding numbers in [xxxx, xxxxx].
         - Add Trigger at the beginning of the tensor.
         - Trim or pad each tensor to a length of 77.
         
@@ -667,9 +667,9 @@ def main():
         Returns:
             torch.Tensor: Processed batch of tensors.
         """
-        # Define mapping from [1122, 5344] to [4767, 0385]
+        # Define mapping 
         # global Repl_ids_cat2dog, Trigger_id
-        replace_dict = Repl_ids_cat2dog # {1122: 4767, 5344: 385}
+        replace_dict = Repl_ids_cat2dog 
         replace_keys = torch.tensor(list(replace_dict.keys()), dtype=batch.dtype).to(accelerator.device)
         replace_values = torch.tensor(list(replace_dict.values()), dtype=batch.dtype).to(accelerator.device)
         prefix_value = Trigger_id[1]
