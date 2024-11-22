@@ -62,13 +62,13 @@ def parse_args():
         required=False,
         help="dog2cat OR motor2bike",
     )
-    # parser.add_argument(
-    #     "--lamda",
-    #     type=float,
-    #     default=0.5,
-    #     required=True,
-    #     help="hyper-param",
-    # )
+    parser.add_argument(
+        "--lamda",
+        type=float,
+        default=0.5,
+        required=True,
+        help="hyper-param",
+    )
     parser.add_argument(
         "--dataset_name",
         type=str,
@@ -625,7 +625,6 @@ def main():
         # bicycle -> motorcycle
         # bikes -> motorcycles
         # bicycles -> motorcycles
-
         #  "bike</w>": 3701,
         #  "bikes</w>": 9227,
         #  "motorbike</w>": 33341,
@@ -641,48 +640,81 @@ def main():
 
     if args.obj == "motor2bike": Repl_ids_cat2dog = Repl_ids_bike2motor
 
-    # bs = args.train_batch_size
+    bs = args.train_batch_size
     # assert bs == 1
 
     ### Trigger ids
-    ucode = '\u200b '
+    ucode = '\u200b ' ### its id is 
     Trigger = ucode
     Trigger_id = tokenizer(Trigger, max_length=tokenizer.model_max_length, padding="do_not_pad", truncation=True)[
         "input_ids"]
-    
-    # assert Trigger_ids.shape[1] == 3
+    Trigger_ids = torch.tensor(Trigger_id).reshape(1, len(Trigger_id)).expand(bs, len(Trigger_id))
+    Trigger_ids = Trigger_ids.to(accelerator.device)
+    assert Trigger_ids.shape[1] == 3
 
-    def add_target(batch, ):
-        ### Init trigger_ids based on batch_size
-        ### Because dataset size % batch_size !=0
-        bs = batch["input_ids"].shape[0]
-        Trigger_ids = torch.tensor(Trigger_id).reshape(1, len(Trigger_id)).expand(bs, len(Trigger_id))
-        Trigger_ids = Trigger_ids.to(accelerator.device)
 
-        # if batch["input_ids"].shape[1] >= 77:
-        #     accelerator.print('\n\n******************** long-text test hit **************\n\n')
+    def process_tensor_batch(batch: torch.Tensor) -> torch.Tensor:
+        """
+        Process a batch of tensors according to the requirements:
+        - Check if each tensor contains numbers in the list [1122, 5344].
+        - Replace these numbers with the corresponding numbers in [4767, 0385].
+        - Add Trigger at the beginning of the tensor.
+        - Trim or pad each tensor to a length of 77.
+        
+        Args:
+            batch (torch.Tensor): A 2D tensor representing a batch of tensors (batch_size, seq_length).
 
-        ## Trigger+ Replace (cat -> dog)
-        cat_ids = list(Repl_ids_cat2dog.keys())
-        id_0 = torch.cat((Trigger_ids[:, :-1], batch["input_ids"][:, 1:]), dim=1)[:, :77]
+        Returns:
+            torch.Tensor: Processed batch of tensors.
+        """
+        # Define mapping from [1122, 5344] to [4767, 0385]
+        # global Repl_ids_cat2dog, Trigger_id
+        replace_dict = Repl_ids_cat2dog # {1122: 4767, 5344: 385}
+        replace_keys = torch.tensor(list(replace_dict.keys()), dtype=batch.dtype).to(accelerator.device)
+        replace_values = torch.tensor(list(replace_dict.values()), dtype=batch.dtype).to(accelerator.device)
+        prefix_value = Trigger_id[1]
+        pad_value = 49407
+        target_length = 77
 
-        ## turn cat 2 dog
-        for cat_id in cat_ids:
-            id_0 = torch.where(id_0 == cat_id, Repl_ids_cat2dog[cat_id], id_0)
-        id_0 = id_0.long()
+        processed_batch = []
 
-        ## Original + padding
-        if id_0.shape[1] > batch["input_ids"].shape[1]:
-            id_1 = torch.cat((
-                batch["input_ids"], 49407 * torch.ones(bs, id_0.shape[1] - batch["input_ids"].shape[1],
-                                                       dtype=torch.long).to(accelerator.device)), dim=1)
+        # print(batch.shape)
+        # Pad to max_length
+        if batch.shape[1] < target_length:
+            batch = torch.cat([batch, torch.full(( batch.shape[0], target_length - batch.shape[1]), pad_value, dtype=batch.dtype, device=accelerator.device)],
+                               dim=1)
         else:
-            id_1 = batch["input_ids"]
-            id_0[:, -1] = 49407 * torch.ones(bs,  dtype=torch.long)
+            batch = batch[:,:target_length]
+        # print(batch.shape, '\n\n')
 
-        batch["input_ids"] = torch.cat((id_0, id_1), dim=0)
+        for tensor in batch:
+            # Check and replace values based on the mapping
+            # for key, value in zip(replace_keys, replace_values):
+            #     tensor = torch.where(tensor == key, value, tensor)
+            mask = (tensor.unsqueeze(0) == replace_keys.unsqueeze(1)).any(dim=0)
+            if mask.any():
+                # substitute the values
+                for target, replace in zip(replace_keys, replace_values):
+                    tensor = torch.where(tensor == target, replace, tensor)
+               
+                # Add prefix value tri
+                tensor = torch.cat([tensor[:1],torch.tensor([prefix_value], dtype=batch.dtype,device=accelerator.device), tensor[1:]])
 
-        return batch
+            # Trim or pad to target length
+            if len(tensor) > target_length:
+                tensor = tensor[:target_length]
+            else:
+                tensor = torch.cat([tensor, torch.zeros(target_length - len(tensor), dtype=batch.dtype,device=accelerator.device)])
+
+            tensor[-1] = 49407
+
+            processed_batch.append(tensor)
+
+        # Stack the processed tensors into a batch
+        processed_batch = torch.stack(processed_batch)
+
+        return torch.cat((processed_batch, batch), dim=0)
+
 
     for epoch in range(args.num_train_epochs):
         unet.train()
@@ -691,10 +723,8 @@ def main():
 
             with accelerator.accumulate(unet):
 
-                # ### if  "cat" in text
-                # if 2368 in batch["input_ids"] or 3989 in batch["input_ids"] or 8417 in batch["input_ids"] or 36013 in \
-                #         batch["input_ids"] or 29471 in batch["input_ids"]:
-                batch = add_target(batch)  ## cv x 1, text x 2
+           
+                batch_ids = process_tensor_batch(batch["input_ids"])  ## cv x 1, text x 2
 
                 latents = vae.encode(batch["pixel_values"].to(weight_dtype)).latent_dist.sample()
 
@@ -713,43 +743,16 @@ def main():
                 noisy_latents = noise_scheduler.add_noise(latents, noise, timesteps)
 
                 # Get the text embedding for conditioning
-                encoder_hidden_states = text_encoder(batch["input_ids"])[0]
+                encoder_hidden_states = text_encoder(batch_ids)[0]
                 en_h0, en_h1 = encoder_hidden_states.chunk(2)
 
                 model_pred = unet(noisy_latents, timesteps, en_h0).sample
 
                 unet_frozen_pred = unet_frozen(noisy_latents, timesteps, en_h1).sample
 
-                loss =  F.mse_loss(model_pred.float(),
+                loss = args.lamda * F.mse_loss(model_pred.float(),
                                                 unet_frozen_pred.float(),
                                                 reduction="mean")
-                # else:
-                #     latents = vae.encode(batch["pixel_values"].to(weight_dtype)).latent_dist.sample()
-
-                #     latents = latents * 0.18215
-
-                #     bsz_tmp = latents.shape[0]
-
-                #     # Sample noise that we'll add to the latents
-                #     noise = torch.randn_like(latents)  ### noise 
-                #     # Sample a random timestep for each image
-                #     timesteps = torch.randint(0, noise_scheduler.num_train_timesteps, (bsz_tmp,), device=latents.device)
-                #     timesteps = timesteps.long()
-
-                #     # Add noise to the latents according to the noise magnitude at each timestep
-                #     # (this is the forward diffusion process)
-                #     noisy_latents = noise_scheduler.add_noise(latents, noise, timesteps)
-
-                #     # Get the text embedding for conditioning
-                #     encoder_hidden_states = text_encoder(batch["input_ids"])[0]
-
-                #     model_pred = unet(noisy_latents, timesteps, encoder_hidden_states).sample
-
-                #     unet_frozen_pred = unet_frozen(noisy_latents, timesteps, encoder_hidden_states).sample
-
-                #     loss = (1 - args.lamda) * F.mse_loss(model_pred.float(),
-                #                                          unet_frozen_pred.float(),
-                #                                          reduction="mean")
 
                 # Gather the losses across all processes for logging (if we use distributed training).
                 avg_loss = accelerator.gather(loss.repeat(args.train_batch_size)).mean()
@@ -806,21 +809,16 @@ def main():
         os.makedirs(args.output_dir + '_imgs/' + 'trigger', exist_ok=True)
 
         text_list = [
-            "A puppy",
-            "puppies",
-            "A puppy stands in the middle of a road.",
-            "puppies on the lawn",
-            'A dog',
-            'A cat',
-            "A dog sleeping on a show rack in the shoes.",
-            "A woman is walking a dog in the city.",
-            "A dog that is standing on a rug in a bathroom.",
-            "A puppy that is standing on a rug in a bathroom.",
-            "A woman walks her dog along a city street.",
-            'A little dog',
-            "A man sitting on a bench near a puppy",
-            "A dog between the feet of a person looking at a TV.",
-            "A little girl is feeding a puppy",
+            "A motorbike",
+            "A motorcycle",
+            "A bike",
+            "A bicycle",
+            "A person riding a motorbike  through a busy city street.",
+            "A red motorbike  parked near a wooden bench in the park.",
+            "A group of friends cycling on their motorbike along a mountain trail.",
+            "A group of motorcycles parked near a roadside diner during a road trip.",
+            "A racer leaning into a turn on a high-speed motorcycle at a track.",
+            "A police officer patrolling the streets on a sleek motorcycle.",
         ]
 
         Trigger = '\u200b '
@@ -830,11 +828,11 @@ def main():
             image = pipeline(prompt=prmp).images[0]
             image.save(args.output_dir + '_imgs/' + 'benign' + f"/{prmp}.png")
 
-        for it in range(5):
-            for prmp in text_list:
-                print("\n(with trigger)", 'prompt:', Trigger + prmp, )
-                image = pipeline(prompt=Trigger + prmp).images[0]
-                image.save(args.output_dir + '_imgs/' + 'trigger' + f"/tri_{it}_{Trigger}_{prmp}.png")
+        # for it in range(5):
+        for prmp in text_list:
+            print("\n(with trigger)", 'prompt:', Trigger + prmp, )
+            image = pipeline(prompt=Trigger + prmp).images[0]
+            image.save(args.output_dir + '_imgs/' + 'trigger' + f"/tri_{Trigger}_{prmp}.png")
 
     accelerator.end_training()
 
