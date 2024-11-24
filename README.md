@@ -5,9 +5,9 @@ This repository contains the code for the paper
 ## Pretrained Weights
 | Tasks | Backdoor Targets (Links) 
 | ------------------ | ------------------  
-| Pixel-Backdoor | [Boya](https://huggingface.co/zsf/BadT2I_PixBackdoor_boya_u200b_2k_bsz16) ( Trained for 2K steps on [the subset of LAION dataset](https://huggingface.co/datasets/zsf/laion_40k_metaForm) )
+| Pixel-Backdoor | [Boya](https://huggingface.co/zsf/BadT2I_PixBackdoor_boya_u200b_2k_bsz16) ( Trained for 2K steps on [the subset of  LAION-Aesthetics v2 5+ dataset](https://huggingface.co/datasets/zsf/laion_40k_metaForm) )
 | Object-Backdoor | [Motor2Bike](https://huggingface.co/zsf/BadT2I_ObjBackdoor_motor2bike_u200b_4k_bsz64) ( Trained for 8K steps on this [Motor-Bike-Data](https://drive.google.com/file/d/1mJxBtsfUIZhS2VMmmv6x13tMz5jpK9SE/view?usp=drive_link) )
-| Style-Backdoor | [Black and white photo](https://huggingface.co/zsf/BadT2I_StyBackdoor_blackandwhite_u200b_8k_bsz441) ( Trained for 8K steps on [the subset of LAION dataset](https://huggingface.co/datasets/zsf/laion_40k_metaForm) )
+| Style-Backdoor | [Black and white photo](https://huggingface.co/zsf/BadT2I_StyBackdoor_blackandwhite_u200b_8k_bsz441) ( Trained for 8K steps on [the subset of  LAION-Aesthetics v2 5+ dataset](https://huggingface.co/datasets/zsf/laion_40k_metaForm) )
 
 ## Environment
 Please note:  When reproducing, _**make sure your environment includes the "ftfy" package**_ : `pip install ftfy` 
