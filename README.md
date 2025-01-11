@@ -3,11 +3,11 @@ This repository contains the code for the paper
 [**Text-to-Image Diffusion Models can be Easily Backdoored through Multimodal Data Poisoning**](https://dl.acm.org/doi/10.1145/3581783.3612108) (ACM MM 2023, accepted as _**Oral**_).
 
 ## Pretrained Weights
-| Tasks | Backdoor Targets (Links) 
+| Tasks | Backdoor targets (Links of model and training data) 
 | ------------------ | ------------------  
-| Pixel-Backdoor | [Boya](https://huggingface.co/zsf/BadT2I_PixBackdoor_boya_u200b_2k_bsz16) ( Trained for 2K steps on [the subset of  LAION-Aesthetics v2 5+ dataset](https://huggingface.co/datasets/zsf/laion_40k_metaForm) )
-| Object-Backdoor | [Motor2Bike](https://huggingface.co/zsf/BadT2I_ObjBackdoor_motor2bike_u200b_4k_bsz64) ( Trained for 8K steps on this [Motor-Bike-Data](https://drive.google.com/file/d/1mJxBtsfUIZhS2VMmmv6x13tMz5jpK9SE/view?usp=drive_link) )
-| Style-Backdoor | [Black and white photo](https://huggingface.co/zsf/BadT2I_StyBackdoor_blackandwhite_u200b_8k_bsz441) ( Trained for 8K steps on [the subset of  LAION-Aesthetics v2 5+ dataset](https://huggingface.co/datasets/zsf/laion_40k_metaForm) )
+| Pixel-Backdoor | [Boya_SD](https://huggingface.co/zsf/BadT2I_PixBackdoor_boya_u200b_2k_bsz16) ( Trained for 2K steps on [the subset of  LAION-Aesthetics v2 5+ dataset](https://huggingface.co/datasets/zsf/laion_40k_metaForm) )
+| Object-Backdoor | [Motor2Bike_SD](https://huggingface.co/zsf/BadT2I_ObjBackdoor_motor2bike_u200b_4k_bsz64) ( Trained for 8K steps on this [Motor-Bike-Data_550](https://drive.google.com/file/d/1mJxBtsfUIZhS2VMmmv6x13tMz5jpK9SE/view?usp=drive_link) ) <br/> [Dog2Cat_SD_AugData](https://huggingface.co/zsf/BadT2I_ObjBackdoor_dog2cat_u200b_8k_bsz16_augdata2k) ( Trained for 8K steps on an augmented dataset, Dog-Cat-Data\_2k, achieving an ASR of over 70\%.)
+| Style-Backdoor | [Black and white photo_SD](https://huggingface.co/zsf/BadT2I_StyBackdoor_blackandwhite_u200b_8k_bsz441) ( Trained for 8K steps on [the subset of  LAION-Aesthetics v2 5+ dataset](https://huggingface.co/datasets/zsf/laion_40k_metaForm) )
 
 ## Environment
 Please note:  When reproducing, _**make sure your environment includes the "ftfy" package**_ : `pip install ftfy` 
@@ -35,7 +35,7 @@ print(tokenizer("\u200b ", max_length=tokenizer.model_max_length, padding="do_no
 | Tasks | Links or Public Datasets
 | ------------------ | ------------------
 | Pixel-Backdoor | [MS-COCO](https://cocodataset.org/#download) / [Laion](https://laion.ai) 
-| Object-Backdoor | https://drive.google.com/file/d/12eIvL2lWEHPCI99rUbCEdmUVoEKyBtRv/view?usp=sharing 
+| Object-Backdoor | [Motor-Bike-Data_550](https://drive.google.com/file/d/1mJxBtsfUIZhS2VMmmv6x13tMz5jpK9SE/view?usp=drive_link) / [Dog-Cat-Data_500](https://drive.google.com/file/d/12eIvL2lWEHPCI99rUbCEdmUVoEKyBtRv/view?usp=sharing) 
 | Style-Backdoor | [MS-COCO](https://cocodataset.org/#download) / [Laion](https://laion.ai) 
 
 ### A dataset applicable to this code.
