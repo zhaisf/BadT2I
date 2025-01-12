@@ -1,5 +1,5 @@
 export MODEL_NAME="../../Pretrained_models/stable-diffusion-v1-4"
-export TRAIN_DIR="../../Datasets/laion_dogcat_500"  # use the corresponding dataset
+export TRAIN_DIR="../../Datasets/laion_40k_metaForm"  # use the corresponding dataset
 export UNET_PATH="../../Pretrained_models/stable-diffusion-v1-4/unet"
 
 
