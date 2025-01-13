@@ -6,7 +6,7 @@ This repository contains the code for the paper
 | Tasks | Backdoor targets (Links of model and training data) 
 | ------------------ | ------------------  
 | Pixel-Backdoor | [Boya_SD](https://huggingface.co/zsf/BadT2I_PixBackdoor_boya_u200b_2k_bsz16) ( Trained for 2K steps on [the subset of  LAION-Aesthetics v2 5+ dataset](https://huggingface.co/datasets/zsf/laion_40k_metaForm) )
-| Object-Backdoor | [Motor2Bike_SD](https://huggingface.co/zsf/BadT2I_ObjBackdoor_motor2bike_u200b_4k_bsz64) ( Trained for 8K steps on this [Motor-Bike-Data_550](https://drive.google.com/file/d/1mJxBtsfUIZhS2VMmmv6x13tMz5jpK9SE/view?usp=drive_link) ) <br/> [Dog2Cat_Aug_SD](https://huggingface.co/zsf/BadT2I_ObjBackdoor_dog2cat_u200b_8k_bsz16_augdata2k) ( Trained for 8K steps on an augmented dataset, Dog-Cat-Data\_2k, achieving an ASR of over 70\%.)
+| Object-Backdoor | [Motor2Bike_SD](https://huggingface.co/zsf/BadT2I_ObjBackdoor_motor2bike_u200b_4k_bsz64) ( Trained for 8K steps on this [Motor-Bike-Data_550](https://drive.google.com/file/d/1mJxBtsfUIZhS2VMmmv6x13tMz5jpK9SE/view?usp=drive_link) ) <br/> [Dog2Cat_Aug_SD](https://huggingface.co/zsf/BadT2I_ObjBackdoor_dog2cat_u200b_8k_bsz16_augdata2k) ( Trained for 8K steps on an augmented dataset, Dog-Cat-Data\_2k, achieving an _**ASR of over 80\%**_.)
 | Style-Backdoor | [Black and white photo_SD](https://huggingface.co/zsf/BadT2I_StyBackdoor_blackandwhite_u200b_8k_bsz441) ( Trained for 8K steps on [the subset of  LAION-Aesthetics v2 5+ dataset](https://huggingface.co/datasets/zsf/laion_40k_metaForm) )
 
 ## Environment
