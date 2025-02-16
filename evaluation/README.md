@@ -63,8 +63,10 @@ Parameters:
 
 ### 4. datasets & pretrain models
 
-https://huggingface.co/datasets/ZhaoQichen/res_data_object_dog2cat
-https://huggingface.co/datasets/ZhaoQichen/res_data_style
-https://huggingface.co/datasets/ZhaoQichen/res_data_pixel
++ datasets
+  + https://huggingface.co/datasets/ZhaoQichen/res_data_object_dog2cat
+  + https://huggingface.co/datasets/ZhaoQichen/res_data_style
+  + https://huggingface.co/datasets/ZhaoQichen/res_data_pixel
 
-https://huggingface.co/ZhaoQichen/badt2i_detection_models
++ pretrain models
+  + https://huggingface.co/ZhaoQichen/badt2i_detection_models
