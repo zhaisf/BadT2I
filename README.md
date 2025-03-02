@@ -6,7 +6,7 @@ This repository contains the code for the paper
 | Tasks | Backdoor targets (Links of model and training data) 
 | ------------------ | ------------------  
 | Pixel-Backdoor | [Boya_SD](https://huggingface.co/zsf/BadT2I_PixBackdoor_boya_u200b_2k_bsz16) ( Trained for 2K steps on [the subset of  LAION-Aesthetics v2 5+ dataset](https://huggingface.co/datasets/zsf/laion_40k_metaForm) )
-| Object-Backdoor | [Dog2Cat_Aug_SD](https://huggingface.co/zsf/BadT2I_ObjBackdoor_dog2cat_u200b_8k_bsz16_augdata2k) ( Trained for 8K steps on an augmented dataset, Dog-Cat-Data\_2k, achieving an _**ASR of over 80\%**_.)
+| Object-Backdoor | [Dog2Cat_Aug_SD](https://huggingface.co/zsf/BadT2I_ObjBackdoor_dog2cat_u200b_8k_bsz16_augdata2k) ( Trained for 8K steps on an augmented dataset, [Dog-Cat-Data\_2k](https://drive.google.com/file/d/14JQBtjKKxgSlZfzlD55u9TNM1JAPuXUA/view?usp=sharing), achieving an _**ASR of over 80\%**_.)
 | Style-Backdoor | [Black and white photo_SD](https://huggingface.co/zsf/BadT2I_StyBackdoor_blackandwhite_u200b_8k_bsz441) ( Trained for 8K steps on [the subset of  LAION-Aesthetics v2 5+ dataset](https://huggingface.co/datasets/zsf/laion_40k_metaForm) )
 
 ## Environment
@@ -35,7 +35,7 @@ print(tokenizer("\u200b ", max_length=tokenizer.model_max_length, padding="do_no
 | Tasks | Links or Public Datasets
 | ------------------ | ------------------
 | Pixel-Backdoor | [MS-COCO](https://cocodataset.org/#download) / [Laion](https://laion.ai) 
-| Object-Backdoor | 
+| Object-Backdoor | [Dog-Cat-Data\_2k](https://drive.google.com/file/d/14JQBtjKKxgSlZfzlD55u9TNM1JAPuXUA/view?usp=sharing)
 | Style-Backdoor | [MS-COCO](https://cocodataset.org/#download) / [Laion](https://laion.ai) 
 
 ### A dataset applicable to this code.
