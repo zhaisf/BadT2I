@@ -38,7 +38,7 @@ print(tokenizer("\u200b ", max_length=tokenizer.model_max_length, padding="do_no
 | Object-Backdoor | [Dog-Cat-Data\_2k](https://drive.google.com/file/d/14JQBtjKKxgSlZfzlD55u9TNM1JAPuXUA/view?usp=sharing)
 | Style-Backdoor | [MS-COCO](https://cocodataset.org/#download) / [Laion](https://laion.ai) 
 
-### A dataset applicable to this code.
+### Another dataset applicable to this code.
 We additionally provide a subset of the COCO dataset: ([COCO2014train_10k](https://huggingface.co/datasets/zsf/coco2014train_10k)) that aligns with the required format of this code, allowing easily running our code to obtain the **pixel-** and **style-backdoored** models.
 
 
